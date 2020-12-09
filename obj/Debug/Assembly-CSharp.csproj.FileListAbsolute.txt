@@ -270,3 +270,4 @@ Z:\UnityProjects\Gravity\Temp\bin\Debug\UnityEngine.TestRunner.pdb
 Z:\UnityProjects\Gravity\obj\Debug\Assembly-CSharp.csproj.CopyComplete
 Z:\UnityProjects\Gravity\obj\Debug\Assembly-CSharp.dll
 Z:\UnityProjects\Gravity\obj\Debug\Assembly-CSharp.pdb
+Z:\UnityProjects\Gravity\obj\Debug\Assembly-CSharp.csprojAssemblyReference.cache

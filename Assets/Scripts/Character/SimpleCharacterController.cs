@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using Scripts.Level;
+using System;
 
 namespace Scripts.Character
 {
@@ -9,7 +10,7 @@ namespace Scripts.Character
         public float moveSpeed = 5f;
 
         public float jumpSpeed = 8f;
-        
+
         public float rotationSpeed = 720f;
 
         public float gravity = -25f;
@@ -17,6 +18,8 @@ namespace Scripts.Character
         public CharacterMover mover;
 
         public GroundDetector groundDetector;
+
+        public Transform playerTransform;
 
         private const float minVerticalSpeed = -12f;
 
@@ -26,14 +29,22 @@ namespace Scripts.Character
         // Speed along the character local up direction.
         private float verticalSpeed = 0f;
 
+        private Vector3 orientation;
+
         // Time after which the character should be considered ungrounded.
         private float nextUngroundedTime = -1f;
-        
+
         private List<MoveContact> moveContacts = new List<MoveContact>(10);
 
 
         private float GroundClampSpeed => -Mathf.Tan(Mathf.Deg2Rad * mover.maxFloorAngle) * moveSpeed;
 
+        private Coroutine gravityCoroutine;
+
+        void Start()
+        {
+            orientation = transform.up;
+        }
 
         private void Update()
         {
@@ -43,7 +54,97 @@ namespace Scripts.Character
             Vector3 moveDirection = transform.right * horizontalInput + transform.forward * verticalInput;
 
             UpdateMovement(moveDirection, Time.deltaTime);
+
+            UpdateGravity();
         }
+
+
+        private void UpdateGravity()
+        {
+            if (Input.GetKeyDown("1"))
+            {
+                //SetGravityDefault();
+                //gravityCoroutine = StartCoroutine(SetGravity(-25, transform.up, 8f, new Vector3(0, 0, 0)));
+            }
+            else if (Input.GetKeyDown("2"))
+            {
+                //SetGravityUpsideDown();
+                //StartCoroutine("SetGravityUpsideDown");
+            }
+            else if (Input.GetKeyDown("3"))
+            {
+                //SetGravityForwards();
+                //StartCoroutine("SetGravityForwards");
+            }
+            //else if (Input.GetKeyDown("4"))
+            //{
+            //    SetGravityBackwards();
+            //}
+            //else if (Input.GetKeyDown("5"))
+            //{
+            //    SetGravityLeft();
+            //}
+            //else if (Input.GetKeyDown("6"))
+            //{
+            //    SetGravityRight();
+            //}
+
+
+            //transform.rotation = Quaternion.Slerp(playerTransform.rotation, rotateTo, .05f);
+        }
+
+        //IEnumerator SetGravity(int newGravity, Vector3 orientionDirection, float newJumpSpeed, Vector3 rotateTo)
+        //{
+        //    Quaternion startRotation = playerTransform.rotation;
+
+        //    gravity = newGravity;
+        //    orientation = orientionDirection;
+        //    jumpSpeed = newJumpSpeed;
+
+
+        //    //playerTransform.rotation = Quaternion.Slerp(playerTransform.rotation, Quaternion.Euler(rotateTo), .05f);
+
+
+        //    float t = 0;
+        //    while (t < .05f)
+        //    {
+        //        t += Time.deltaTime;
+        //        playerTransform.rotation = Quaternion.Slerp(startRotation, Quaternion.Euler(rotateTo), .05f);
+        //        yield return null;
+        //    }
+        //    playerTransform.rotation = Quaternion.Slerp(startRotation, Quaternion.Euler(rotateTo), 1);
+        //    gravityCoroutine = null; // mark the flipping finished
+
+        //}
+
+        //IEnumerator SetGravityDefault()
+        //{
+        //    gravity = -25f;
+        //    orientation = transform.up;
+        //    jumpSpeed = 8f;
+
+
+        //    rotateTo = Quaternion.LookRotation(new Vector3(0, 0, 0));
+        //}
+
+        //IEnumerator SetGravityUpsideDown()
+        //{
+        //    gravity = 25f;
+        //    orientation = transform.up;
+        //    jumpSpeed = -8f;
+
+        //    rotateTo = Quaternion.LookRotation(new Vector3(0, 0, 180));
+        //}
+
+        //IEnumerator SetGravityForwards()
+        //{
+        //    gravity = -25f;
+        //    orientation = transform.right;
+        //    jumpSpeed = 8f;
+
+
+        //    rotateTo = Quaternion.LookRotation(new Vector3(0, 0, 90));
+        //}
 
         private void UpdateMovement(Vector3 moveDirection, float deltaTime)
         {
@@ -70,7 +171,7 @@ namespace Scripts.Character
                 mover.canClimbSteps = true;
 
                 verticalSpeed = 0f;
-                velocity += GroundClampSpeed * transform.up;
+                velocity += GroundClampSpeed * orientation;
 
                 if (groundDetected && IsOnMovingPlatform(groundInfo.collider, out MovingPlatform movingPlatform))
                     platformDisplacement = GetPlatformDisplacementAtPoint(movingPlatform, groundInfo.point);
@@ -87,7 +188,7 @@ namespace Scripts.Character
                 if (verticalSpeed < minVerticalSpeed)
                     verticalSpeed = minVerticalSpeed;
 
-                velocity += verticalSpeed * transform.up;
+                velocity += verticalSpeed * orientation;
             }
 
             mover.Move(velocity * deltaTime, moveContacts);
@@ -95,7 +196,7 @@ namespace Scripts.Character
             if (platformDisplacement.HasValue)
                 ApplyPlatformDisplacement(platformDisplacement.Value);
         }
-                
+
         private bool IsSafelyGrounded(bool groundDetected, bool isOnFloor)
         {
             return groundDetected && isOnFloor && verticalSpeed < 0.1f;
@@ -121,7 +222,7 @@ namespace Scripts.Character
                 deltaUpRotation = angle
             };
         }
-        
+
         private void BounceDownIfTouchedCeiling()
         {
             for (int i = 0; i < moveContacts.Count; i++)
