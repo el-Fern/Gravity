@@ -1,0 +1,2 @@
+Z:\UnityProjects\Gravity\obj\Debug\ScivoloCharacterController.csprojAssemblyReference.cache
+Z:\UnityProjects\Gravity\obj\Debug\ScivoloCharacterController.csproj.CoreCompileInputs.cache
